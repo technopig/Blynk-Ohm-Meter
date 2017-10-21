@@ -4,6 +4,13 @@
 //The two resistances should be as similar as possible
 //  for best accuracy.
 
+//The blink app should have a slider on V1
+//  and a value display on V0
+//  The slider simply writes a value to the virtual pin
+
+//Note that analogRead returns a value from 0 to 4094
+//  mapped linearly from 0V to 3.3V on the pin (ref to GND)
+
 #include <blynk.h>
 
 
@@ -20,13 +27,14 @@ BlynkTimer timer;
 
 
 
-BLYNK_WRITE(V1){
-  blynk_sVal = param.asInt();
+BLYNK_WRITE(V1)
+{
+  blynk_sVal = param.asInt(); //get the value from the slider on V1
 }
 
 void sendResistVal()
 {
-  Blynk.virtualWrite(V0, resistVal);
+  Blynk.virtualWrite(V0, resistVal); //send the value to the display on V0
 }
 
 void setup()
