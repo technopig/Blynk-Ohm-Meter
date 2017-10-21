@@ -12,18 +12,20 @@
 //  mapped linearly from 0V to 3.3V on the pin (ref to GND)
 
 #include <blynk.h>
+#include <LiquidCrystal.h>
 
 
 char auth[] = "5487a1b9f1f34f2ab1d5872ec64e35f6";
 double resistVal = 0; //for real resistance
 int raw = 0; //for analogRead
-int R_known = 10; //should be on order of measurement target
+int R_known = 100000; //should be on order of measurement target
 int blynk_sVal = 0; //value from blynk slider
 double rollingSum = 0;
 double V_in = 3.3;
 double V_out = 0;
 
 BlynkTimer timer;
+LiquidCrystal lcd(D0, D1, D2, D3, D4, D5);
 
 
 
@@ -46,6 +48,9 @@ void setup()
   Blynk.begin(auth); //begin Blynk
   timer.setInterval(1000L, sendResistVal); //every 1000ms, execute sendResistVal(){}
 
+  lcd.begin(16, 2);
+  lcd.print("Test output!");
+
   pinMode(A5, INPUT); // Analog resistor input
 }
 
@@ -54,17 +59,22 @@ void loop()
   Blynk.run();
   timer.run();
 
-  raw = blynk_sVal; //uncomment this line for Blynk slider resistances
-  //raw = analogRead(A5); //uncomment this line for measured resistances
+
+  //raw = blynk_sVal; //uncomment this line for Blynk slider resistances
+  raw = analogRead(A5); //uncomment this line for measured resistances
   V_out = V_in*raw/4094; //can possibly equal exactly 3.3
   for (int i = 0; i<10; i++)
   {
     rollingSum = rollingSum + (V_in-V_out)*R_known/V_out;
-    delay(90);
+    delay(10);
   }
   resistVal=rollingSum/10;
-
+  //resistVal=raw;
   rollingSum=0;
+  lcd.clear();
+  lcd.print(resistVal);
+  delay(100);
+
 
 }
 // end
